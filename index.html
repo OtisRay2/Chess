@@ -109,9 +109,21 @@
     .sq.light { background: #f0d9b5; }
     .sq.dark  { background: #b58863; }
 
-    /* All pieces use the same white-piece glyphs; CSS color distinguishes sides */
-    .sq.white-piece { color: #fff; text-shadow: 0 0 3px #000, 0 0 3px #000, 1px 1px 2px #000; }
-    .sq.black-piece { color: #111; text-shadow: 0 0 3px #e8d5b0, 0 0 3px #e8d5b0, 1px 1px 2px #fff; }
+    /* Hard 8-directional outline makes pieces pop on any square colour */
+    .sq.white-piece {
+      color: #fffef0;
+      text-shadow:
+        -2px -2px 0 #111,  0 -2px 0 #111,  2px -2px 0 #111,
+        -2px  0   0 #111,                    2px  0   0 #111,
+        -2px  2px 0 #111,  0  2px 0 #111,   2px  2px 0 #111;
+    }
+    .sq.black-piece {
+      color: #1a1a1a;
+      text-shadow:
+        -2px -2px 0 #e8d9a0,  0 -2px 0 #e8d9a0,  2px -2px 0 #e8d9a0,
+        -2px  0   0 #e8d9a0,                        2px  0   0 #e8d9a0,
+        -2px  2px 0 #e8d9a0,  0  2px 0 #e8d9a0,   2px  2px 0 #e8d9a0;
+    }
 
     .sq.selected { background: #f6f669 !important; }
     .sq.move-hint::after {
@@ -160,8 +172,18 @@
     }
 
     .cap-piece { display: inline; }
-    .cap-piece.white-piece { color: #fff; text-shadow: 0 0 2px #000, 0 0 2px #000; }
-    .cap-piece.black-piece { color: #111; text-shadow: 0 0 2px #fff, 0 0 2px #fff; }
+    .cap-piece.white-piece {
+      color: #fffef0;
+      text-shadow: -1px -1px 0 #111, 0 -1px 0 #111, 1px -1px 0 #111,
+                   -1px  0   0 #111,                  1px  0   0 #111,
+                   -1px  1px 0 #111, 0  1px 0 #111,  1px  1px 0 #111;
+    }
+    .cap-piece.black-piece {
+      color: #1a1a1a;
+      text-shadow: -1px -1px 0 #e8d9a0, 0 -1px 0 #e8d9a0, 1px -1px 0 #e8d9a0,
+                   -1px  0   0 #e8d9a0,                     1px  0   0 #e8d9a0,
+                   -1px  1px 0 #e8d9a0, 0  1px 0 #e8d9a0,  1px  1px 0 #e8d9a0;
+    }
 
     #promo-modal {
       display: none;
