@@ -5,10 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chess</title>
   <style>
+    :root {
+      /* Square size: fills screen on mobile, caps at 64px on larger screens */
+      --sq: clamp(36px, calc((100vw - 44px) / 8), 64px);
+      --rl: 20px; /* rank label column width */
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -16,63 +23,72 @@
       background: #1a1a2e;
       font-family: 'Segoe UI', sans-serif;
       color: #eee;
+      padding: 12px 8px;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    h1 { font-size: 2rem; margin-bottom: 12px; letter-spacing: 2px; }
+    h1 { font-size: clamp(1.3rem, 5vw, 2rem); margin-bottom: 8px; letter-spacing: 2px; }
 
     #status {
-      font-size: 1.1rem;
-      margin-bottom: 12px;
+      font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+      margin-bottom: 8px;
       min-height: 1.5em;
       color: #ffd700;
+      text-align: center;
     }
 
     #board-wrap {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 4px;
     }
 
     .file-labels, .rank-labels {
       display: flex;
-      font-size: .8rem;
+      font-size: clamp(0.6rem, 2vw, 0.8rem);
       color: #aaa;
     }
 
-    .file-labels { flex-direction: row; margin-top: 4px; margin-left: 28px; }
-    .file-labels span { width: 64px; text-align: center; }
+    .file-labels { flex-direction: row; margin-top: 4px; margin-left: calc(var(--rl) + 4px); }
+    .file-labels span { width: var(--sq); text-align: center; }
 
     .rank-labels { flex-direction: column; }
-    .rank-labels span { height: 64px; line-height: 64px; text-align: center; width: 20px; }
+    .rank-labels span { height: var(--sq); line-height: var(--sq); text-align: center; width: var(--rl); }
 
     #board {
       display: grid;
-      grid-template-columns: repeat(8, 64px);
-      grid-template-rows: repeat(8, 64px);
+      grid-template-columns: repeat(8, var(--sq));
+      grid-template-rows: repeat(8, var(--sq));
       border: 3px solid #555;
       box-shadow: 0 8px 32px #0008;
+      touch-action: manipulation;
     }
 
     .sq {
-      width: 64px;
-      height: 64px;
+      width: var(--sq);
+      height: var(--sq);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 42px;
+      font-size: calc(var(--sq) * 0.7);
       cursor: pointer;
       user-select: none;
       position: relative;
       transition: background .1s;
+      touch-action: manipulation;
     }
 
     .sq.light { background: #f0d9b5; }
     .sq.dark  { background: #b58863; }
+    .sq.white-piece { color: #fff; text-shadow: 0 0 3px #000, 0 0 3px #000, 1px 1px 2px #000; }
+    .sq.black-piece { color: #111; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 1px 1px 2px #fff; }
     .sq.selected { background: #f6f669 !important; }
     .sq.move-hint::after {
       content: '';
       position: absolute;
-      width: 22px; height: 22px;
+      width: calc(var(--sq) * 0.34);
+      height: calc(var(--sq) * 0.34);
       border-radius: 50%;
       background: rgba(0,0,0,.2);
     }
@@ -81,30 +97,36 @@
     .sq.last-move { background: rgba(155,199,0,.41) !important; }
 
     #controls {
-      margin-top: 16px;
+      margin-top: 12px;
       display: flex;
       gap: 12px;
     }
 
     button {
-      padding: 8px 22px;
+      padding: 10px 22px;
       border: none;
       border-radius: 6px;
-      font-size: 1rem;
+      font-size: clamp(0.9rem, 3.5vw, 1rem);
       cursor: pointer;
       background: #e94560;
       color: #fff;
       transition: background .2s;
+      touch-action: manipulation;
+      min-width: 44px;
+      min-height: 44px;
     }
 
-    button:hover { background: #c73652; }
+    button:hover, button:active { background: #c73652; }
 
     #captured {
-      margin-top: 10px;
-      font-size: 1.4rem;
+      margin-top: 8px;
+      font-size: clamp(1rem, 4vw, 1.4rem);
       display: flex;
-      gap: 24px;
+      gap: 16px;
       justify-content: center;
+      flex-wrap: wrap;
+      max-width: calc(var(--sq) * 8 + var(--rl) + 4px);
+      text-align: center;
     }
 
     #promo-modal {
@@ -123,10 +145,21 @@
       padding: 24px;
       text-align: center;
     }
-    #promo-box p { margin-bottom: 12px; font-size: 1.1rem; }
-    #promo-choices { display: flex; gap: 10px; font-size: 52px; }
-    #promo-choices span { cursor: pointer; padding: 4px 10px; border-radius: 8px; transition: background .15s; }
-    #promo-choices span:hover { background: #444; }
+    #promo-box p { margin-bottom: 12px; font-size: clamp(1rem, 4vw, 1.1rem); }
+    #promo-choices { display: flex; gap: 8px; font-size: clamp(40px, 12vw, 52px); }
+    #promo-choices span {
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 8px;
+      transition: background .15s;
+      touch-action: manipulation;
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #promo-choices span:hover, #promo-choices span:active { background: #444; }
   </style>
 </head>
 <body>
@@ -430,7 +463,10 @@ function render() {
       if (lastMove && (i===lastMove.from||i===lastMove.to)) sq.classList.add('last-move');
       if (i===kingIdx) sq.classList.add('in-check');
       if (hints.has(i)) sq.classList.add(board[i]===EMPTY?'move-hint':'capture-hint');
-      if (board[i]) sq.textContent = UNICODE[board[i]];
+      if (board[i]) {
+        sq.textContent = UNICODE[board[i]];
+        sq.classList.add(pieceColor(board[i]) === WHITE ? 'white-piece' : 'black-piece');
+      }
       sq.addEventListener('click',()=>handleClick(i));
       boardEl.appendChild(sq);
     }
